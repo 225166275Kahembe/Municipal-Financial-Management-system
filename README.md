@@ -13,7 +13,7 @@ Visual Studio Code + GCC
 [ENTER GROUP NUMBER]
 
 ## Group Members
-1. [student Name] – [student Number]
+1. [Kahembe Ervin] – [225166275]
 2. [Kamati Josua] – [226141381]
 3. [Angula Fanuel] – [226008096]
 4. [Ashikuti Martina] – [226003663]
