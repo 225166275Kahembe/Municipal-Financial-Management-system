@@ -13,10 +13,10 @@ Visual Studio Code + GCC
 [ENTER GROUP NUMBER]
 
 ## Group Members
-1. [Student Name] – [Student Number]
+1. [student Name] – [student Number]
 2. [Student Name] – [Student Number]
 3. [Student Name] – [Student Number]
-4. [Student Name] – [Student Number]
+4. [Ashikuti Martina] – [226003663]
 5. [Student Name] – [Student Number]
 6. [Student Name] – [Student Number]
 7. [Student Name] – [Student Number]
