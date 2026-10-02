@@ -14,7 +14,7 @@ Visual Studio Code + GCC
 
 ## Group Members
 1. [student Name] – [student Number]
-2. [Student Name] – [226141381]
+2. [Kamati Josua] – [226141381]
 3. [Angula Fanuel] – [226008096]
 4. [Ashikuti Martina] – [226003663]
 5. [Student Name] – [Student Number]
