@@ -10,7 +10,7 @@ Project A – Foundation System
 Visual Studio Code + GCC
 
 ## Group Number
-[ENTER GROUP NUMBER]
+[7]
 
 ## Group Members
 1. [Kahembe Ervin] – [225166275]
@@ -23,7 +23,7 @@ Visual Studio Code + GCC
 ## Project Description
 The Municipal Financial Management System (MFMS) is a foundation C application for managing basic municipal financial information.
 
-The system demonstrates the programming concepts covered during Weeks 1–8, including variables, input/output, decisions, loops, arrays, strings, searching and functions.
+The system demonstrates the programming concepts, including variables, input/output, decisions, loops, arrays, strings, searching and functions.
 
 ## System Features
 - Employee management
