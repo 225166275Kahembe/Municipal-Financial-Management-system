@@ -1,419 +1,16 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 #include "employees.h"
 
-#define MAX_AMOUNT 10000000.0f
+int employeeID[50];
+char employeeName[50][50];
+char employeeDepartment[50][50];
+float basicSalary[50];
+float housingAllowance[50];
+float transportAllowance[50];
+float otherAllowance[50];
 
-static int empId[MAX_EMPLOYEES];
-static char empName[MAX_EMPLOYEES][NAME_LEN];
-static char empDept[MAX_EMPLOYEES][DEPT_LEN];
-static char empPosition[MAX_EMPLOYEES][POSITION_LEN];
-static float empBasic[MAX_EMPLOYEES];
-static float empHousing[MAX_EMPLOYEES];
-static float empTransport[MAX_EMPLOYEES];
-static float empOther[MAX_EMPLOYEES];
-static int employeeCount = 0;
-
-static void clearBuffer(void)
-{
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF)
-    {
-    }
-}
-
-static int isBlank(const char text[])
-{
-    for (int i = 0; text[i] != '\0'; i++)
-    {
-        if (!isspace((unsigned char)text[i]))
-        {
-            return 0;
-        }
-    }
-    return 1;
-}
-
-static void readText(const char prompt[], char text[], int size)
-{
-    int valid = 0;
-
-    while (!valid)
-    {
-        printf("%s", prompt);
-
-        if (fgets(text, size, stdin) == NULL)
-        {
-            exit(1);
-        }
-
-        if (text[strcspn(text, "\n")] == '\0')
-        {
-            clearBuffer();
-        }
-        text[strcspn(text, "\n")] = '\0';
-
-        if (isBlank(text))
-        {
-            printf("Error: this field cannot be empty.\n");
-        }
-        else
-        {
-            valid = 1;
-        }
-    }
-}
-
-static int readInt(const char prompt[], int min, int max)
-{
-    int value = 0;
-    int result;
-    int valid = 0;
-
-    while (!valid)
-    {
-        printf("%s", prompt);
-        result = scanf("%d", &value);
-
-        if (result == EOF)
-        {
-            exit(1);
-        }
-
-        if (result != 1)
-        {
-            printf("Error: please enter a whole number.\n");
-        }
-        else if (value < min || value > max)
-        {
-            printf("Error: enter a number between %d and %d.\n", min, max);
-        }
-        else
-        {
-            valid = 1;
-        }
-
-        clearBuffer();
-    }
-
-    return value;
-}
-
-static float readAmount(const char prompt[], int allowZero)
-{
-    float value = 0;
-    int result;
-    int valid = 0;
-
-    while (!valid)
-    {
-        printf("%s", prompt);
-        result = scanf("%f", &value);
-
-        if (result == EOF)
-        {
-            exit(1);
-        }
-
-        if (result != 1)
-        {
-            printf("Error: please enter a valid number.\n");
-        }
-        else if (value < 0)
-        {
-            printf("Error: the amount cannot be negative.\n");
-        }
-        else if (value == 0 && allowZero == 0)
-        {
-            printf("Error: the amount must be greater than 0.\n");
-        }
-        else if (value > MAX_AMOUNT)
-        {
-            printf("Error: the amount is too large.\n");
-        }
-        else
-        {
-            valid = 1;
-        }
-
-        clearBuffer();
-    }
-
-    return value;
-}
-
-static void toLowerCase(const char source[], char result[])
-{
-    int i;
-
-    for (i = 0; source[i] != '\0'; i++)
-    {
-        result[i] = (char)tolower((unsigned char)source[i]);
-    }
-    result[i] = '\0';
-}
-
-static int findEmployeeById(int id)
-{
-    for (int i = 0; i < employeeCount; i++)
-    {
-        if (empId[i] == id)
-        {
-            return i;
-        }
-    }
-    return -1;
-}
-
-static void printTableHeader(void)
-{
-    printf("\n%-6s %-22s %-16s %-16s %12s\n",
-           "ID", "Name", "Department", "Position", "Gross (N$)");
-    printf("------------------------------------------------------------------------------\n");
-}
-
-static void printTableRow(int index)
-{
-    float gross = calculateGrossSalary(empBasic[index], empHousing[index],
-                                       empTransport[index], empOther[index]);
-
-    printf("%-6d %-22.22s %-16.16s %-16.16s %12.2f\n",
-           empId[index], empName[index], empDept[index],
-           empPosition[index], gross);
-}
-
-static void printEmployeeDetails(int index)
-{
-    printf("\n--- Employee Details ---\n");
-    printf("Employee ID       : %d\n", empId[index]);
-    printf("Name              : %s\n", empName[index]);
-    printf("Department        : %s\n", empDept[index]);
-    printf("Position          : %s\n", empPosition[index]);
-    printf("Basic salary      : N$%.2f\n", empBasic[index]);
-    printf("Housing allowance : N$%.2f\n", empHousing[index]);
-    printf("Transport allow.  : N$%.2f\n", empTransport[index]);
-    printf("Other allowances  : N$%.2f\n", empOther[index]);
-}
-
-float calculateGrossSalary(float basic, float housing, float transport, float other)
-{
-    return basic + housing + transport + other;
-}
-
-float calculateTax(float grossSalary)
-{
-    float rate;
-
-    if (grossSalary <= 5000)
-    {
-        rate = 0.0f;
-    }
-    else if (grossSalary <= 15000)
-    {
-        rate = 0.10f;
-    }
-    else if (grossSalary <= 30000)
-    {
-        rate = 0.20f;
-    }
-    else
-    {
-        rate = 0.30f;
-    }
-
-    return grossSalary * rate;
-}
-
-float calculateNetSalary(float grossSalary, float tax)
-{
-    return grossSalary - tax;
-}
-
-void addEmployee(void)
-{
-    int id;
-    int n = employeeCount;
-
-    printf("\n--- Add Employee ---\n");
-
-    if (employeeCount >= MAX_EMPLOYEES)
-    {
-        printf("Error: the employee list is full (%d employees).\n", MAX_EMPLOYEES);
-        return;
-    }
-
-    id = readInt("Enter Employee ID (1-99999): ", 1, 99999);
-
-    if (findEmployeeById(id) != -1)
-    {
-        printf("Error: an employee with ID %d already exists.\n", id);
-        return;
-    }
-
-    empId[n] = id;
-    readText("Enter full name: ", empName[n], NAME_LEN);
-    readText("Enter department: ", empDept[n], DEPT_LEN);
-    readText("Enter position/job title: ", empPosition[n], POSITION_LEN);
-    empBasic[n] = readAmount("Enter basic salary (N$): ", 0);
-    empHousing[n] = readAmount("Enter housing allowance (N$): ", 1);
-    empTransport[n] = readAmount("Enter transport allowance (N$): ", 1);
-    empOther[n] = readAmount("Enter other allowances (N$): ", 1);
-
-    employeeCount++;
-    printf("\nEmployee '%s' added successfully.\n", empName[n]);
-}
-
-void displayEmployees(void)
-{
-    printf("\n--- All Employees ---\n");
-
-    if (employeeCount == 0)
-    {
-        printf("No employees have been added yet.\n");
-        return;
-    }
-
-    printTableHeader();
-    for (int i = 0; i < employeeCount; i++)
-    {
-        printTableRow(i);
-    }
-    printf("\nTotal employees: %d\n", employeeCount);
-}
-
-void searchEmployee(void)
-{
-    int choice;
-    int index;
-    int id;
-    int found = 0;
-    char text[100];
-    char searchLower[100];
-    char nameLower[NAME_LEN];
-    char deptLower[DEPT_LEN];
-
-    printf("\n--- Search Employee ---\n");
-
-    if (employeeCount == 0)
-    {
-        printf("No employees have been added yet.\n");
-        return;
-    }
-
-    printf("1. Search by Employee ID\n");
-    printf("2. Search by name (full or part of the name)\n");
-    printf("3. Search by department\n");
-    choice = readInt("Enter your choice: ", 1, 3);
-
-    if (choice == 1)
-    {
-        id = readInt("Enter Employee ID: ", 1, 99999);
-        index = findEmployeeById(id);
-
-        if (index != -1)
-        {
-            printEmployeeDetails(index);
-            found = 1;
-        }
-    }
-    else if (choice == 2)
-    {
-        readText("Enter name to search: ", text, sizeof(text));
-        toLowerCase(text, searchLower);
-
-        for (int i = 0; i < employeeCount; i++)
-        {
-            toLowerCase(empName[i], nameLower);
-
-            if (strstr(nameLower, searchLower) != NULL)
-            {
-                printEmployeeDetails(i);
-                found++;
-            }
-        }
-    }
-    else
-    {
-        readText("Enter department to search: ", text, sizeof(text));
-        toLowerCase(text, searchLower);
-
-        for (int i = 0; i < employeeCount; i++)
-        {
-            toLowerCase(empDept[i], deptLower);
-
-            if (strcmp(deptLower, searchLower) == 0)
-            {
-                printEmployeeDetails(i);
-                found++;
-            }
-        }
-    }
-
-    if (found == 0)
-    {
-        printf("No matching employee found.\n");
-    }
-    else if (choice != 1)
-    {
-        printf("\n%d employee(s) found.\n", found);
-    }
-}
-
-void calculateSalary(void)
-{
-    int id;
-    int index;
-    float gross;
-    float tax;
-    float net;
-
-    printf("\n--- Calculate Salary ---\n");
-
-    if (employeeCount == 0)
-    {
-        printf("No employees have been added yet.\n");
-        return;
-    }
-
-    id = readInt("Enter Employee ID: ", 1, 99999);
-    index = findEmployeeById(id);
-
-    if (index == -1)
-    {
-        printf("Error: no employee with ID %d was found.\n", id);
-        return;
-    }
-
-    gross = calculateGrossSalary(empBasic[index], empHousing[index],
-                                 empTransport[index], empOther[index]);
-    tax = calculateTax(gross);
-    net = calculateNetSalary(gross, tax);
-
-    printf("\n========== SALARY SLIP ==========\n");
-    printf("Employee : %s (ID %d)\n", empName[index], empId[index]);
-    printf("Dept     : %s\n", empDept[index]);
-    printf("---------------------------------\n");
-    printf("Basic salary      : N$%10.2f\n", empBasic[index]);
-    printf("Housing allowance : N$%10.2f\n", empHousing[index]);
-    printf("Transport allow.  : N$%10.2f\n", empTransport[index]);
-    printf("Other allowances  : N$%10.2f\n", empOther[index]);
-    printf("---------------------------------\n");
-    printf("Gross salary      : N$%10.2f\n", gross);
-    printf("Tax               : N$%10.2f\n", tax);
-    printf("Net salary        : N$%10.2f\n", net);
-    printf("=================================\n");
-
-    if (net >= 20000)
-    {
-        printf("Income level      : High Income\n");
-    }
-    else
-    {
-        printf("Income level      : Standard Income\n");
-    }
-}
+int employeeCount = 0;
 
 void employeeMenu(void)
 {
@@ -421,16 +18,14 @@ void employeeMenu(void)
 
     do
     {
-        printf("\n========================================\n");
-        printf("          EMPLOYEE MANAGEMENT\n");
-        printf("========================================\n");
-        printf("1. Add employee\n");
-        printf("2. Display employees\n");
-        printf("3. Search for an employee\n");
-        printf("4. Calculate employee salary\n");
-        printf("5. Back to main menu\n");
-
-        choice = readInt("Enter your choice: ", 1, 5);
+        printf("\n--- EMPLOYEE MANAGEMENT ---\n");
+        printf("1. Add Employee\n");
+        printf("2. Display Employees\n");
+        printf("3. Search Employee\n");
+        printf("4. Return to Main Menu\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
 
         switch (choice)
         {
@@ -444,13 +39,122 @@ void employeeMenu(void)
                 searchEmployee();
                 break;
             case 4:
-                calculateSalary();
                 break;
-            case 5:
-                printf("Returning to main menu...\n");
-                break;
+            default:
+                printf("Invalid choice.\n");
         }
-    } while (choice != 5);
+    } while (choice != 4);
+}
+
+void addEmployee(void)
+{
+    if (employeeCount >= (int)(sizeof(employeeID) / sizeof(employeeID[0])))
+    {
+        printf("Employee storage is full.\n");
+        return;
+    }
+
+    printf("\nEnter employee ID: ");
+    scanf("%d", &employeeID[employeeCount]);
+    getchar();
+
+    printf("Enter employee name: ");
+    fgets(employeeName[employeeCount], sizeof(employeeName[employeeCount]), stdin);
+    employeeName[employeeCount][strcspn(employeeName[employeeCount], "\n")] = '\0';
+
+    printf("Enter department: ");
+    fgets(employeeDepartment[employeeCount], sizeof(employeeDepartment[employeeCount]), stdin);
+    employeeDepartment[employeeCount][strcspn(employeeDepartment[employeeCount], "\n")] = '\0';
+
+    printf("Enter basic salary: ");
+    scanf("%f", &basicSalary[employeeCount]);
+
+    while (basicSalary[employeeCount] < 0)
+    {
+        printf("Salary cannot be negative. Enter again: ");
+        scanf("%f", &basicSalary[employeeCount]);
+    }
+
+    printf("Enter housing allowance: ");
+    scanf("%f", &housingAllowance[employeeCount]);
+
+    printf("Enter transport allowance: ");
+    scanf("%f", &transportAllowance[employeeCount]);
+
+    printf("Enter other allowance: ");
+    scanf("%f", &otherAllowance[employeeCount]);
+    getchar();
+
+    if (housingAllowance[employeeCount] < 0 ||
+        transportAllowance[employeeCount] < 0 ||
+        otherAllowance[employeeCount] < 0)
+    {
+        printf("Allowances cannot be negative. Employee was not added.\n");
+        return;
+    }
+
+    employeeCount++;
+    printf("Employee added successfully.\n");
+}
+
+void displayEmployees(void)
+{
+    int i;
+
+    if (employeeCount == 0)
+    {
+        printf("\nNo employees registered.\n");
+        return;
+    }
+
+    printf("\n--- EMPLOYEE LIST ---\n");
+
+    for (i = 0; i < employeeCount; i++)
+    {
+        printf("\nEmployee ID: %d\n", employeeID[i]);
+        printf("Name: %s\n", employeeName[i]);
+        printf("Department: %s\n", employeeDepartment[i]);
+        printf("Basic Salary: %.2f\n", basicSalary[i]);
+        printf("Housing Allowance: %.2f\n", housingAllowance[i]);
+        printf("Transport Allowance: %.2f\n", transportAllowance[i]);
+        printf("Other Allowance: %.2f\n", otherAllowance[i]);
+        printf("Total Salary: %.2f\n", calculateSalary(basicSalary[i], housingAllowance[i], transportAllowance[i], otherAllowance[i]));
+    }
+}
+
+void searchEmployee(void)
+{
+    char searchName[50];
+    int found = 0;
+    int i;
+
+    printf("\nEnter employee name to search: ");
+    fgets(searchName, sizeof(searchName), stdin);
+    searchName[strcspn(searchName, "\n")] = '\0';
+
+    for (i = 0; i < employeeCount; i++)
+    {
+        if (strcmp(searchName, employeeName[i]) == 0)
+        {
+            printf("\nEmployee found.\n");
+            printf("ID: %d\n", employeeID[i]);
+            printf("Name: %s\n", employeeName[i]);
+            printf("Department: %s\n", employeeDepartment[i]);
+            printf("Total Salary: %.2f\n", calculateSalary(basicSalary[i], housingAllowance[i], transportAllowance[i], otherAllowance[i]));
+            found = 1;
+            break;
+        }
+    }
+
+    if (!found)
+    {
+        printf("Employee not found.\n");
+    }
+}
+
+float calculateSalary(float basic, float housing, float transport, float other)
+{
+    return basic + housing + transport + other;
 }
 
 int getEmployeeCount(void)
@@ -458,24 +162,72 @@ int getEmployeeCount(void)
     return employeeCount;
 }
 
-float getEmployeeGrossSalary(int index)
+float getAverageSalary(void)
 {
-    if (index < 0 || index >= employeeCount)
+    float total = 0;
+    int i;
+
+    if (employeeCount == 0)
     {
         return 0;
     }
 
-    return calculateGrossSalary(empBasic[index], empHousing[index],
-                                empTransport[index], empOther[index]);
-}
-
-void getEmployeeName(int index, char name[])
-{
-    if (index < 0 || index >= employeeCount)
+    for (i = 0; i < employeeCount; i++)
     {
-        name[0] = '\0';
-        return;
+        total = total + calculateSalary(basicSalary[i], housingAllowance[i], transportAllowance[i], otherAllowance[i]);
     }
 
-    strcpy(name, empName[index]);
+    return total / employeeCount;
+}
+
+float getHighestSalary(void)
+{
+    float highest;
+    float salary;
+    int i;
+
+    if (employeeCount == 0)
+    {
+        return 0;
+    }
+
+    highest = calculateSalary(basicSalary[0], housingAllowance[0], transportAllowance[0], otherAllowance[0]);
+
+    for (i = 1; i < employeeCount; i++)
+    {
+        salary = calculateSalary(basicSalary[i], housingAllowance[i], transportAllowance[i], otherAllowance[i]);
+
+        if (salary > highest)
+        {
+            highest = salary;
+        }
+    }
+
+    return highest;
+}
+
+float getLowestSalary(void)
+{
+    float lowest;
+    float salary;
+    int i;
+
+    if (employeeCount == 0)
+    {
+        return 0;
+    }
+
+    lowest = calculateSalary(basicSalary[0], housingAllowance[0], transportAllowance[0], otherAllowance[0]);
+
+    for (i = 1; i < employeeCount; i++)
+    {
+        salary = calculateSalary(basicSalary[i], housingAllowance[i], transportAllowance[i], otherAllowance[i]);
+
+        if (salary < lowest)
+        {
+            lowest = salary;
+        }
+    }
+
+    return lowest;
 }
