@@ -17,7 +17,7 @@ Visual Studio Code + GCC
 2. [Kamati Josua] – [226141381]
 3. [Angula Fanuel] – [226008096]
 4. [Ashikuti Martina] – [226003663]
-5. [Student Name] – [Student Number]
+5. [Magongo Mike] – [221118055]
 6. [Student Name] – [Student Number]
 7. [Rosemary Haipare] – [226036154]
 ## Project Description
