@@ -13,10 +13,11 @@ void budgetMenu(void)
 
     do
     {
-        printf("\n--- BUDGET MANAGEMENT ---\n");
+     printf("\n--- BUDGET MANAGEMENT ---\n");
         printf("1. Add Department Budget\n");
         printf("2. Display Budgets\n");
-        printf("3. Return to Main Menu\n");
+        printf("3. Identify Exceeded Budgets\n");
+        printf("4. Return to Main Menu\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
         getchar();
@@ -30,11 +31,14 @@ void budgetMenu(void)
                 displayBudgets();
                 break;
             case 3:
+                identifyExceededBudgets(); 
+                break;
+            case 4:
                 break;
             default:
                 printf("Invalid choice.\n");
         }
-    } while (choice != 3);
+    } while (choice != 4); 
 }
 
 void addBudget(void)
@@ -139,4 +143,33 @@ float getTotalExpenditure(void)
 float getRemainingBudget(void)
 {
     return getTotalAllocated() - getTotalExpenditure();
+}
+void identifyExceededBudgets(void)
+{
+    int i;
+    int found = 0;
+
+    if (budgetCount == 0)
+    {
+        printf("\nNo budgets registered.\n");
+        return;
+    }
+
+    printf("\n--- DEPARTMENTS EXCEEDING BUDGET ---\n");
+
+    for (i = 0; i < budgetCount; i++)
+    {
+        if (expenditure[i] > allocatedBudget[i])
+        {
+            float deficit = expenditure[i] - allocatedBudget[i];
+            printf("Department: %s\n", budgetDepartment[i]);
+            printf("Exceeded by: %.2f\n\n", deficit);
+            found = 1;
+        }
+    }
+
+    if (!found)
+    {
+        printf("Excellent! No departments have exceeded their budget.\n");
+    }
 }
