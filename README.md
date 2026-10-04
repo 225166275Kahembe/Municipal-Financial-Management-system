@@ -18,8 +18,8 @@ Visual Studio Code + GCC
 3. [Angula Fanuel] – [226008096]
 4. [Ashikuti Martina] – [226003663]
 5. [Magongo Mike] – [221118055]
-6. [gebhard gebhard] – [225127687]
-7. [Rosemary Haipare] – [226036154]
+6. [Rosemary Haipare] – [226036154]
+7. [gebhard gebhard] – [225127687]
 ## Project Description
 The Municipal Financial Management System (MFMS) is a foundation C application for managing basic municipal financial information.
 
