@@ -14,8 +14,8 @@ void reportsMenu(void)
         printf("\n--- REPORTS ---\n");
         printf("1. Employee Report\n");
         printf("2. Budget Report\n");
-        printf("3. Supplier Report\n");
-        printf("4. Asset Report\n");
+        printf("3. Suppliers Report\n");
+        printf("4. Assets Report\n");
         printf("5. Return to Main Menu\n");
         printf("Enter your choice: ");
         scanf("%d", &choice);
